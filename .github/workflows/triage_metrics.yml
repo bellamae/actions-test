@@ -1,0 +1,39 @@
+name: triage metrics
+
+on:
+  workflow_dispatch:
+jobs:
+  seven-day-close:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v4
+        with:
+          script: |
+            const { Octokit } = require("octokit")
+            const QUERY = `is:issue+repo:cypress-io/cypress+created:>=${REPORT_START_DATE}+project:cypress-io/9`
+
+            const octokit = new Octokit({ auth: secrets.GITHUB_TOKEN })
+            
+            const issues = []
+            const iterator = octokit.paginate.iterator(octokit.rest.search.issuesAndPullRequests, {
+              q: QUERY,
+              per_page: 100,
+            })
+            for await (const { data } of iterator) {
+              for (const issue of data) {
+                if (!issue.pull_request) {
+                  const labels = issue.labels.map((label) => ({
+                    name: label.name,
+                    url: label.url,
+                  }))
+                  issues.push({
+                    number: issue.number,
+                    title: issue.title,
+                    state: issue.state,
+                    comment_count: issue.comments,
+                    url: issue.html_url,
+                    labels,
+                  })
+                }
+              }
+            }
