@@ -2,6 +2,13 @@ name: triage metrics
 
 on:
   workflow_dispatch:
+    inputs:
+      startDate:
+        description: 'Start date'
+        type: date
+      endDate:
+        description: 'End date'
+        type: date
 jobs:
   seven-day-close:
     runs-on: ubuntu-latest
