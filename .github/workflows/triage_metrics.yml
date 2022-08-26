@@ -13,20 +13,12 @@ jobs:
   seven-day-close:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - run: npm install octokit
-      - uses: actions/github-script@v4
+      - uses: actions/github-script@v6
         with:
           script: |
-            const { Octokit } = require("octokit")
             const QUERY = `is:issue+repo:cypress-io/cypress+created:>=2022-08-17+project:cypress-io/9`
-
-            const octokit = new Octokit({ auth: secrets.GITHUB_TOKEN })
-            
             const issues = []
-            const iterator = octokit.paginate.iterator(octokit.rest.search.issuesAndPullRequests, {
+            const iterator = github.paginate.iterator(github.rest.search.issuesAndPullRequests, {
               q: QUERY,
               per_page: 100,
             })
