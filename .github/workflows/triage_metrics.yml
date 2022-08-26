@@ -21,7 +21,7 @@ jobs:
         with:
           script: |
             const { Octokit } = require("octokit")
-            const QUERY = `is:issue+repo:cypress-io/cypress+created:>=${REPORT_START_DATE}+project:cypress-io/9`
+            const QUERY = `is:issue+repo:cypress-io/cypress+created:>=2022-08-17+project:cypress-io/9`
 
             const octokit = new Octokit({ auth: secrets.GITHUB_TOKEN })
             
