@@ -15,8 +15,9 @@ jobs:
     steps:
       - uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           script: |
-            const QUERY = `is:issue+repo:konabell/actions-test`
+            const QUERY = `is:issue+repo:konabell/actions-test+project:konabell/1`
             const issues = []
             const iterator = github.paginate.iterator(github.rest.search.issuesAndPullRequests, {
               q: QUERY,
