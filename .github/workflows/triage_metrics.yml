@@ -16,7 +16,7 @@ jobs:
       - uses: actions/github-script@v6
         with:
           script: |
-            const QUERY = `is:issue+repo:konabell/actions-test+created:>=2022-08-17+project:konabell/1`
+            const QUERY = `is:issue+repo:konabell/actions-test+project:konabell/1`
             const issues = []
             const iterator = github.paginate.iterator(github.rest.search.issuesAndPullRequests, {
               q: QUERY,
