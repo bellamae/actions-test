@@ -19,14 +19,6 @@ jobs:
               organization(login: $org){
                 projectV2(number: $number) {
                   id
-                  fields(first:20) {
-                    nodes {
-                      ... on ProjectV2Field {
-                        id
-                        name
-                      }
-                    }
-                  }
                 }
               }
             }' -f org=$ORGANIZATION -F number=$PROJECT_NUMBER > project_data.json
@@ -45,5 +37,3 @@ jobs:
                 }
               }
             }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
-
-            echo 'ITEM_ID='$item_id >> $GITHUB_ENV
