@@ -25,18 +25,34 @@ jobs:
             })
             for await (const { data } of iterator) {
               for (const issue of data) {
+                const endDateTime
                 if (!issue.pull_request) {
-                  const labels = issue.labels.map((label) => ({
-                    name: label.name,
-                    url: label.url,
-                  }))
+                  const routedLabel = issue.labels.find(label => (label.name === 'route' || label.name === 'route'))
+                  if (routedLabel) {
+                    const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
+                      owner: 'konabell',
+                      repo: 'actions-tests',
+                      issue_number: issue.number,
+                    })
+                    for await (const { timelineData } of iterator) {
+                      for (const timelineItem of timelineData) {
+                        if (timelineItem.event === 'labeled' && timelineItem.label.name === 'route') {
+                          endDateTime = timelineItem.createdAt
+                          break
+                        }
+                      }
+                      if (endDateTime) break
+                    }
+                  } else if (issue.state === 'closed') {
+                    endDateTime = issue.closed_at
+                  }
                   issues.push({
                     number: issue.number,
                     title: issue.title,
                     state: issue.state,
                     comment_count: issue.comments,
                     url: issue.html_url,
-                    labels,
+                    endDateTime,
                   })
                 }
               }
