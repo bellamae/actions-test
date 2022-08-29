@@ -34,7 +34,7 @@ jobs:
                       repo: 'actions-test',
                       issue_number: issue.number,
                     })
-                    for await (const { timelineData } of iterator) {
+                    for await (const { data: timelineData } of iterator) {
                       console.log(timelineData)
                       for (const timelineItem of timelineData) {
                         if (timelineItem.event === 'labeled' && timelineItem.label.name === 'route') {
