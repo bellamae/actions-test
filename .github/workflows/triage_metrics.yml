@@ -25,9 +25,9 @@ jobs:
             const routed_or_closed_issues = []
 
             const determineDateRange = () => {
-              console.log(github.inputs)
-              const inputStartDate = `${{ github.inputs.startDate }}`
-              const inputEndDate = `${{ github.inputs.endDate }}`
+              console.log('${{ inputs.endDate }}')
+              const inputStartDate = '${{ inputs.startDate }}'
+              const inputEndDate = '${{ inputs.endDate }}'
               if (inputStartDate && inputEndDate) {
                 return { startDate: inputStartDate, endDate: inputEndDate }
               } else if (inputEndDate) {
