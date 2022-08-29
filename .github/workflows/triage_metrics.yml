@@ -74,6 +74,6 @@ jobs:
               }
             }
             
-            console.log('Total issues: ', issues.count)
-            console.log('Issues closed within 7 days: ', issues.filter(issue => issue.turn_around_time <= 7))
+            console.log('Total issues: ', issues.length)
+            console.log('Issues closed within 7 days: ', issues.filter(issue => issue.turn_around_time <= 7).length)
             console.log(issues)
