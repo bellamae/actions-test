@@ -20,7 +20,6 @@ jobs:
             const ROUTED_TO_LABELS = ['route']
             const MS_PER_DAY = 1000 * 60 * 60 * 24
 
-            console.log(github.event.inputs)
             const issues = []
             const routed_or_closed_issues = []
 
