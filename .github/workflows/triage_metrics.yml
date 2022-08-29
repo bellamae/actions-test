@@ -46,7 +46,7 @@ jobs:
 
             const dateRange = determineDateRange()
             console.log(dateRange)
-            const query = `is:issue+repo:konabell/actions-test+project:konabell/1+created:>=${dateRange.startDate}+created:<=${dateRange.endDate}`
+            const query = `is:issue+repo:konabell/actions-test+project:konabell/1+created:${dateRange.startDate}..${dateRange.endDate}`
             
             const findLabelDateTime = async (issueNumber) => {
               const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
