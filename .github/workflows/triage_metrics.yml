@@ -21,7 +21,7 @@ jobs:
             const issues = []
             const routed_or_closed_issues = []
             
-            const findLabelDateTime = (issueNumber) => {
+            const findLabelDateTime = async (issueNumber) => {
               const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
                 owner: 'konabell',
                 repo: 'actions-test',
@@ -51,7 +51,7 @@ jobs:
                 if (!issue.pull_request) {
                   const routedLabel = issue.labels.find(label => (label.name === 'route' || label.name === 'route'))
                   if (routedLabel) {
-                    routedOrClosedAt = findLabelDateTime(issue.number)
+                    routedOrClosedAt = await findLabelDateTime(issue.number)
                   } else if (issue.state === 'closed') {
                     routedOrClosedAt = issue.closed_at
                   }
