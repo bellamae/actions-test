@@ -74,6 +74,7 @@ jobs:
               }
             }
             
-            console.log('Total issues: ', issues.length)
-            console.log('Issues closed within 7 days: ', issues.filter(issue => issue.turn_around_time <= 7).length)
+            console.log('Total issues:', issues.length)
+            const issuesClosedIn7Days = issues.filter(issue => issue.turn_around_time <= 7).length
+            console.log(`Issues closed within 7 days: ${issuesClosedIn7Days}`)
             console.log(issues)
