@@ -24,13 +24,13 @@ jobs:
             const routed_or_closed_issues = []
 
             const determineDateRange = () => {
-              if (github.event.inputs.startDate && github.event.inputs.endDate) {
+              if (github.event?.inputs?.startDate && github.event?.inputs?.endDate) {
                 return { startDate: github.event.inputs.startDate, endDate: github.event.inputs.endDate }
-              } else if (github.event.inputs.endDate) {
+              } else if (github.event?.inputs?.endDate) {
                 const startDate = new Date(github.event.inputs.endDate)
                 startDate.setDate(startDate.getDate() - 7)
                 return { startDate: startDate.toISOString().split('T')[0], endDate: github.event.inputs.endDate }
-              } else if (github.event.inputs.startDate) {
+              } else if (github.event?.inputs?.startDate) {
                 const endDate = new Date(github.event.inputs.startDate)
                 endDate.setDate(endDate.getDate() + 7)
                 return { startDate: github.event.inputs.startDate, endDate: endDate.toISOString().split('T')[0] }
