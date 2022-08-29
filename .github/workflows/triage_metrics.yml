@@ -58,7 +58,7 @@ jobs:
                   
                   let days
                   if (routedOrClosedAt) {
-                    days = calculateDate(issue.created_at, routedOrClosedAt)
+                    days = calculateDays(issue.created_at, routedOrClosedAt)
                   }
                   
                   issues.push({
@@ -68,9 +68,12 @@ jobs:
                     url: issue.html_url,
                     created_at: issue.created_at,
                     routed_or_closed_at: routedOrClosedAt,
+                    turn_around_time: days
                   })
                 }
               }
             }
             
+            console.log('Total issues: ', issues.count)
+            console.log('Issues closed within 7 days: ', issues.filter(issue => issue.turn_around_time <= 7))
             console.log(issues)
