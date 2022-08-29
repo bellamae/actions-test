@@ -57,7 +57,7 @@ jobs:
                   }
                   
                   let days
-                  if (endDateTime) {
+                  if (routedOrClosedAt) {
                     days = calculateDate(issue.created_at, routedOrClosedAt)
                   }
                   
