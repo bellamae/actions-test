@@ -42,6 +42,7 @@ jobs:
             }
 
             const dateRange = determineDateRange()
+            console.log(dateRange)
             const query = `is:issue+repo:konabell/actions-test+project:konabell/1+created:>=${dateRange.startDate}+created:<=${dateRange.endDate}`
             
             const findLabelDateTime = async (issueNumber) => {
