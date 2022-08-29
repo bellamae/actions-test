@@ -25,16 +25,18 @@ jobs:
             const routed_or_closed_issues = []
 
             const determineDateRange = () => {
-              if (github.event?.inputs?.startDate && github.event?.inputs?.endDate) {
-                return { startDate: github.event.inputs.startDate, endDate: github.event.inputs.endDate }
-              } else if (github.event?.inputs?.endDate) {
-                const startDate = new Date(github.event.inputs.endDate)
+              const inputStartDate = ${{ github.event.inputs.startDate }}
+              const inputEndDate = ${{ github.event.inputs.endDate }}
+              if (inputStartDate && inputEndDate) {
+                return { startDate: inputStartDate, endDate: inputEndDate }
+              } else if (inputEndDate) {
+                const startDate = new Date(inputEndDate)
                 startDate.setDate(startDate.getDate() - 7)
-                return { startDate: startDate.toISOString().split('T')[0], endDate: github.event.inputs.endDate }
-              } else if (github.event?.inputs?.startDate) {
-                const endDate = new Date(github.event.inputs.startDate)
+                return { startDate: startDate.toISOString().split('T')[0], endDate: inputEndDate }
+              } else if (inputStartDate) {
+                const endDate = new Date(inputStartDate)
                 endDate.setDate(endDate.getDate() + 7)
-                return { startDate: github.event.inputs.startDate, endDate: endDate.toISOString().split('T')[0] }
+                return { startDate: inputStartDate, endDate: endDate.toISOString().split('T')[0] }
               }
 
               const startDate = new Date()
