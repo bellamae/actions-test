@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       startDate:
-        description: 'Start date'
+        description: 'Start date (YYYY-MM-DD)'
         type: date
       endDate:
-        description: 'End date'
+        description: 'End date (YYYY-MM-DD)'
         type: date
 jobs:
   seven-day-close:
@@ -17,9 +17,32 @@ jobs:
         with:
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           script: |
-            const QUERY = `is:issue+repo:konabell/actions-test+project:konabell/1`
+            const ROUTED_TO_LABELS = ['routed-to-e2e', 'routed-to-ct']
+            const MS_PER_DAY = 1000 * 60 * 60 * 24
+
             const issues = []
             const routed_or_closed_issues = []
+
+            const determineDateRange = () => {
+              if (github.event.inputs.startDate && github.event.inputs.endDate) {
+                return { startDate: github.event.inputs.startDate, endDate: github.event.inputs.endDate }
+              } else if (github.event.inputs.endDate) {
+                const startDate = new Date(github.event.inputs.endDate)
+                startDate.setDate(startDate.getDate() - 7)
+                return { startDate: startDate.toISOString().split('T')[0], endDate: github.event.inputs.endDate }
+              } else if (github.event.inputs.startDate) {
+                const endDate = new Date(github.event.inputs.startDate)
+                endDate.setDate(endDate.getDate() + 7)
+                return { startDate: github.event.inputs.startDate, endDate: endDate.toISOString().split('T')[0] }
+              }
+
+              const startDate = new Date()
+              startDate.setDate(startDate.getDate() - 7)
+              return { startDate: startDate.toISOString().split('T')[0], endDate: (new Date()).toISOString().split('T')[0] }
+            }
+
+            const dateRange = determineDateRange()
+            const query = `is:issue+repo:konabell/actions-test+project:konabell/1+created:>=${dateRange.startDate}+created:<=${dateRange.endDate}`
             
             const findLabelDateTime = async (issueNumber) => {
               const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
@@ -29,36 +52,35 @@ jobs:
               })
               for await (const { data: timelineData } of iterator) {
                 for (const timelineItem of timelineData) {
-                  if (timelineItem.event === 'labeled' && timelineItem.label.name === 'route') {
+                  if (timelineItem.event === 'labeled' && ROUTED_TO_LABELS.includes(timelineItem.label.name)) {
                     return timelineItem.created_at
                   }
                 }
               }
             }
             
-            const MS_PER_DAY = 1000 * 60 * 60 * 24
-            const calculateDays = (createdAt, routedOrClosedAt) => {
+            const calculateElapsedDays = (createdAt, routedOrClosedAt) => {
               return Math.round((new Date(routedOrClosedAt) - new Date(createdAt)) / MS_PER_DAY, 0)
             }
             
             const iterator = github.paginate.iterator(github.rest.search.issuesAndPullRequests, {
-              q: QUERY,
+              q: query,
               per_page: 100,
             })
             for await (const { data } of iterator) {
               for (const issue of data) {
                 let routedOrClosedAt
                 if (!issue.pull_request) {
-                  const routedLabel = issue.labels.find(label => (label.name === 'route' || label.name === 'route'))
+                  const routedLabel = issue.labels.find(label => ROUTED_TO_LABELS.includes(label.name))
                   if (routedLabel) {
                     routedOrClosedAt = await findLabelDateTime(issue.number)
                   } else if (issue.state === 'closed') {
                     routedOrClosedAt = issue.closed_at
                   }
                   
-                  let days
+                  let elapsedDays
                   if (routedOrClosedAt) {
-                    days = calculateDays(issue.created_at, routedOrClosedAt)
+                    elapsedDays = calculateElapsedDays(issue.created_at, routedOrClosedAt)
                   }
                   
                   issues.push({
@@ -66,15 +88,15 @@ jobs:
                     title: issue.title,
                     state: issue.state,
                     url: issue.html_url,
-                    created_at: issue.created_at,
-                    routed_or_closed_at: routedOrClosedAt,
-                    turn_around_time: days
+                    createdAt: issue.created_at,
+                    routedOrClosedAt,
+                    elapsedDays,
                   })
                 }
               }
             }
             
             console.log('Total issues:', issues.length)
-            const issuesClosedIn7Days = issues.filter(issue => issue.turn_around_time <= 7).length
+            const issuesClosedIn7Days = issues.filter(issue => issue.elapsedDays <= 7).length
             console.log(`Issues closed within 7 days: ${issuesClosedIn7Days}`)
             console.log(issues)
