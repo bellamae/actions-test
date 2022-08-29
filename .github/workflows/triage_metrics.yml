@@ -31,7 +31,7 @@ jobs:
                   if (routedLabel) {
                     const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
                       owner: 'konabell',
-                      repo: 'actions-tests',
+                      repo: 'actions-test',
                       issue_number: issue.number,
                     })
                     for await (const { timelineData } of iterator) {
