@@ -28,6 +28,7 @@ jobs:
                 let endDateTime
                 if (!issue.pull_request) {
                   const routedLabel = issue.labels.find(label => (label.name === 'route' || label.name === 'route'))
+                  console.log(routedLabel)
                   if (routedLabel) {
                     const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
                       owner: 'konabell',
@@ -38,7 +39,7 @@ jobs:
                       console.log(timelineData)
                       for (const timelineItem of timelineData) {
                         if (timelineItem.event === 'labeled' && timelineItem.label.name === 'route') {
-                          endDateTime = timelineItem.createdAt
+                          endDateTime = timelineItem.created_at
                           break
                         }
                       }
