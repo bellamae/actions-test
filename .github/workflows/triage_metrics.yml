@@ -17,48 +17,57 @@ jobs:
         with:
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           script: |
-            const MS_PER_DAY = 1000 * 60 * 60 * 24
             const QUERY = `is:issue+repo:konabell/actions-test+project:konabell/1`
             const issues = []
             const routed_or_closed_issues = []
+            
+            const findLabelDateTime = (issueNumber) => {
+              const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
+                owner: 'konabell',
+                repo: 'actions-test',
+                issue_number: issueNumber,
+              })
+              for await (const { data: timelineData } of iterator) {
+                for (const timelineItem of timelineData) {
+                  if (timelineItem.event === 'labeled' && timelineItem.label.name === 'route') {
+                    return timelineItem.created_at
+                  }
+                }
+              }
+            }
+            
+            const MS_PER_DAY = 1000 * 60 * 60 * 24
+            const calculateDays = (createdAt, routedOrClosedAt) => {
+              Math.round((new Date(routedOrClosedAt) - new Date(createdAt)) / MS_PER_DAY, 0)
+            }
+            
             const iterator = github.paginate.iterator(github.rest.search.issuesAndPullRequests, {
               q: QUERY,
               per_page: 100,
             })
             for await (const { data } of iterator) {
               for (const issue of data) {
-                let endDateTime
+                let routedOrClosedAt
                 if (!issue.pull_request) {
                   const routedLabel = issue.labels.find(label => (label.name === 'route' || label.name === 'route'))
-                  console.log(routedLabel)
                   if (routedLabel) {
-                    const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
-                      owner: 'konabell',
-                      repo: 'actions-test',
-                      issue_number: issue.number,
-                    })
-                    for await (const { data: timelineData } of iterator) {
-                      console.log(timelineData)
-                      for (const timelineItem of timelineData) {
-                        if (timelineItem.event === 'labeled' && timelineItem.label.name === 'route') {
-                          endDateTime = timelineItem.created_at
-                          break
-                        }
-                      }
-                      if (endDateTime) break
-                    }
+                    routedOrClosedAt = findLabelDateTime(issue.number)
                   } else if (issue.state === 'closed') {
-                    endDateTime = issue.closed_at
+                    routedOrClosedAt = issue.closed_at
                   }
-                  const days = Math.round((new Date(endDateTime) - new Date(issue.created_at))/ MS_PER_DAY, 0)
-                  console.log(days)
+                  
+                  let days
+                  if (endDateTime) {
+                    days = calculateDate(issue.created_at, routedOrClosedAt)
+                  }
+                  
                   issues.push({
                     number: issue.number,
                     title: issue.title,
                     state: issue.state,
                     url: issue.html_url,
                     created_at: issue.created_at,
-                    routed_or_closed_at: endDateTime,
+                    routed_or_closed_at: routedOrClosedAt,
                   })
                 }
               }
