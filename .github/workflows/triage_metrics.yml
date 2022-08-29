@@ -99,5 +99,6 @@ jobs:
             
             console.log('Total issues:', issues.length)
             const issuesClosedIn7Days = issues.filter(issue => issue.elapsedDays <= 7).length
-            console.log(`Issues closed within 7 days: ${issuesClosedIn7Days}`)
+            const percentage = Number((issuesRoutedOrClosedIn7Days/issues.length)/100).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2}); 
+            console.log(`Issues routed/closed within 7 days: ${issuesRoutedOrClosedIn7Days} (${percentage})`)
             console.log(issues)
