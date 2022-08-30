@@ -44,7 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
         run: |
-          echo "::set-output name=issues::$(gh api graphql --paginate -f query='
+          gh api graphql --paginate -f query='
             search(query: "repo:konabell/actions-test is:issue project:konabell/1 created:${{steps.date-range.outputs.result.startDate}}..${{steps.date-range.outputs.result.endDate}}", type: ISSUE, first: 100) {
               edges {
                 node {
@@ -81,7 +81,9 @@ jobs:
                   }
                 }
               }
-            }')"
+            }' > issues.json
+            
+          echo "::set-output name=issues::$(cat issues.json)"
       - name: Analyze issue data
         uses: actions/github-script@v6
         with:
@@ -89,14 +91,12 @@ jobs:
           script: |
             const ROUTED_TO_LABELS = ['route']
             const MS_PER_DAY = 1000 * 60 * 60 * 24
-
-            const issues = []
             
             const calculateElapsedDays = (createdAt, routedOrClosedAt) => {
               return Math.round((new Date(routedOrClosedAt) - new Date(createdAt)) / MS_PER_DAY, 0)
             }
 
-            const issues = JSON.parse(${{ steps.get-issues.outputs.results }})
+            const issues = JSON.parse(${{ steps.get-issues.outputs.issues }})
 
             console.log(issues)
 
