@@ -44,7 +44,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
         run: |
-          results = gh api graphql --paginate -f query='
+          echo "::set-output name=issues::$(gh api graphql --paginate -f query='
             search(query: "repo:konabell/actions-test is:issue project:konabell/1 created:${{steps.date-range.outputs.result.startDate}}..${{steps.date-range.outputs.result.endDate}}", type: ISSUE, first: 100) {
               edges {
                 node {
@@ -81,9 +81,7 @@ jobs:
                   }
                 }
               }
-            }'
-
-          echo "::set-output name=results::$results"
+            }')"
       - name: Analyze issue data
         uses: actions/github-script@v6
         with:
