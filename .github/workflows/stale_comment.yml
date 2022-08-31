@@ -43,7 +43,7 @@ jobs:
                     }
                   }
                 }
-                projectV2(number: 1) {
+                projectV2(number: $project) {
                   field(name: "Status") {
                     ... on ProjectV2SingleSelectField {
                       options {
