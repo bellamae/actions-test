@@ -29,7 +29,6 @@ jobs:
                             name
                             field {
                               ... on ProjectV2SingleSelectField {
-                                id
                                 project {
                                   ... on ProjectV2 {
                                     id
@@ -47,6 +46,7 @@ jobs:
                 projectV2(number: $project) {
                   field(name: "Status") {
                     ... on ProjectV2SingleSelectField {
+                      id
                       options {
                         id
                         name
@@ -60,7 +60,7 @@ jobs:
           cat project_data.json
           echo 'PROJECT_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == 1) | .id' project_data.json) >> $GITHUB_ENV
           echo 'ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
-          echo 'STATUS_FIELD_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field | select(.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '..data.organization.projectV2.field | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == 1) | .name' project_data.json) >> $GITHUB_ENV
           echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "🆕 New") | .id' project_data.json) >> $GITHUB_ENV
 
