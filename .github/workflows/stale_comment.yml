@@ -60,7 +60,7 @@ jobs:
           echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field | select(.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == 1) | .name' project_data.json) >> $GITHUB_ENV
-          echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "No Status") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "🆕 New") | .id' project_data.json) >> $GITHUB_ENV
 
       - name: Move issue to New Issue status
         if: ${{ env.STATUS == 'Closed' }}
