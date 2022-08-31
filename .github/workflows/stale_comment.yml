@@ -66,6 +66,7 @@ jobs:
       - name: Move issue to New Issue status
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
-        if: ${{ env.STATUS == 'Closed ' }}
+          STATUS: Closed
+        if: ${{ env.STATUS == 'Closed' }}
         run: |
           echo ${{ env.STATUS }}
