@@ -9,6 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get project data
+        id: project-data
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           ORGANIZATION: 'konabell'
@@ -61,9 +62,10 @@ jobs:
           echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.field | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == ${{ env.PROJECT_NUMBER }}) | .name' project_data.json) >> $GITHUB_ENV
+          echo "::set-output name=status::$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == ${{ env.PROJECT_NUMBER }}) | .name' project_data.json)"
           echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "New Issue") | .id' project_data.json) >> $GITHUB_ENV
       - name: Move issue to New Issue status
-        if: env.STATUS == 'Closed'
+        if: ${{ steps.project-data.outputs.status == 'Closed' }}
         env:
           STATUS: ${{ env.STATUS }}
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
