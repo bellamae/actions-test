@@ -57,7 +57,7 @@ jobs:
             }' -f org=$ORGANIZATION -f repo=$REPOSITORY -F issue=$ISSUE_NUMBER -F project=$PROJECT_NUMBER > project_data.json
 
           echo 'PROJECT_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == 1) | .id' project_data.json) >> $GITHUB_ENV
-          echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field | select(.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == 1) | .name' project_data.json) >> $GITHUB_ENV
           echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "🆕 New") | .id' project_data.json) >> $GITHUB_ENV
@@ -86,4 +86,4 @@ jobs:
                   id
                 }
               }
-            }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=$NEW_ISSUE_OPTION_ID
+            }' -f project=$PROJECT_ID -f item=$ITEM_ID -f status_field=$STATUS_FIELD_ID -f status_value=$NEW_ISSUE_OPTION_ID
