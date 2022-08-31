@@ -43,7 +43,7 @@ jobs:
                     }
                   }
                 }
-                projectV2(number: 9) {
+                projectV2(number: 1) {
                   field(name: "Status") {
                     ... on ProjectV2SingleSelectField {
                       options {
@@ -56,11 +56,11 @@ jobs:
               }
             }' -f org=$ORGANIZATION -f repo=$REPOSITORY -f issue=$ISSUE_NUMBER -f project=$PROJECT_NUMBER > project_data.json
 
-          echo 'PROJECT_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == 9) | .id' project_data.json) >> $GITHUB_ENV
-          echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 9) | .id' project_data.json) >> $GITHUB_ENV
-          echo 'STATUS_FIELD_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field | select(.project.number == 9) | .id' project_data.json) >> $GITHUB_ENV
-          echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == 9) | .name' project_data.json) >> $GITHUB_ENV
-          echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "New Issue") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'PROJECT_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == 1) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field | select(.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == 1) | .name' project_data.json) >> $GITHUB_ENV
+          echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "No Status") | .id' project_data.json) >> $GITHUB_ENV
 
       - name: Move issue to New Issue status
         if: ${{ env.STATUS == 'Closed' }}
