@@ -14,11 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
+        env:
+          ORGANIZATION: 'konabell'
+          REPOSITORY: 'actions-test'
+          PROJECT_NUMBER: 1
         with:
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           script: |
             const ROUTED_TO_LABELS = ['routed-to-e2e', 'routed-to-ct']
             const MS_PER_DAY = 1000 * 60 * 60 * 24
+            const { REPOSITORY, ORGANIZATION, PROJECT_NUMBER } = process.env
 
             const issues = []
 
@@ -42,12 +47,12 @@ jobs:
             }
 
             const dateRange = determineDateRange()
-            const query = `is:issue+repo:konabell/actions-test+project:konabell/1+created:${dateRange.startDate}..${dateRange.endDate}`
+            const query = `is:issue+repo:${ORGANIZATION}/${REPOSITORY}+project:${ORGANIZATION}/${PROJECT_NUMBER}+created:${dateRange.startDate}..${dateRange.endDate}`
 
             const findLabelDateTime = async (issueNumber) => {
               const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
-                owner: 'konabell',
-                repo: 'actions-test',
+                owner: ORGANIZATION,
+                repo: REPOSITORY,
                 issue_number: issueNumber,
               })
 
