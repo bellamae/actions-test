@@ -31,7 +31,6 @@ jobs:
                 core.setFailed('Both startDate and endDate are required.')
               }
 
-              # default to a 7-day look-back
               const startDate = new Date()
               startDate.setDate(startDate.getDate() - 6)
               return { startDate: startDate.toISOString().split('T')[0], endDate: (new Date()).toISOString().split('T')[0] }
