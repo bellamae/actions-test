@@ -23,6 +23,7 @@ jobs:
                   issue(number: $issue) {
                     projectItems(first: 10, includeArchived: false) {
                       nodes {
+                        id
                         fieldValueByName(name: "Status") {
                           ... on ProjectV2ItemFieldSingleSelectValue {
                             name
