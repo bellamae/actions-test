@@ -54,7 +54,7 @@ jobs:
                   }
                 }
               }
-            }' -f org=$ORGANIZATION -f repo=$REPOSITORY -f issue=$ISSUE_NUMBER -f project=$PROJECT_NUMBER > project_data.json
+            }' -f org=$ORGANIZATION -f repo=$REPOSITORY -F issue=$ISSUE_NUMBER -F project=$PROJECT_NUMBER > project_data.json
 
           echo 'PROJECT_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == 1) | .id' project_data.json) >> $GITHUB_ENV
           echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == 1) | .id' project_data.json) >> $GITHUB_ENV
