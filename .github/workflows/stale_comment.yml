@@ -68,5 +68,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
         run: |
-          echo ${{ fromJSON(env) }}
-          echo ${{ fromJSON(steps.project-data) }}
+          echo ${{ env.STATUS }}
