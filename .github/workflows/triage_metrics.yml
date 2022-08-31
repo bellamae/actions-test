@@ -10,123 +10,91 @@ on:
         description: 'End date (YYYY-MM-DD)'
         type: date
 jobs:
-  seven-day-route-or-close:
+  seven-day-close:
     runs-on: ubuntu-latest
     steps:
-      - name: Determine date range
-        id: date-range
-        uses: actions/github-script@v6
+      - uses: actions/github-script@v6
         with:
+          github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           script: |
+            const ROUTED_TO_LABELS = ['routed-to-e2e', 'routed-to-ct']
+            const MS_PER_DAY = 1000 * 60 * 60 * 24
+
+            const issues = []
+
             const determineDateRange = () => {
               const inputStartDate = '${{ inputs.startDate }}'
               const inputEndDate = '${{ inputs.endDate }}'
               if (inputStartDate && inputEndDate) {
                 return { startDate: inputStartDate, endDate: inputEndDate }
-              } else if (inputEndDate) {
-                const startDate = new Date(inputEndDate)
-                startDate.setDate(startDate.getDate() - 6)
-                return { startDate: startDate.toISOString().split('T')[0], endDate: inputEndDate }
-              } else if (inputStartDate) {
-                const endDate = new Date(inputStartDate)
-                endDate.setDate(endDate.getDate() + 6)
-                return { startDate: inputStartDate, endDate: endDate.toISOString().split('T')[0] }
+              } else if (inputStartDate || inputEndDate) {
+                core.setFailed('Both startDate and endDate are required.')
               }
 
+              # default to a 7-day look-back
               const startDate = new Date()
               startDate.setDate(startDate.getDate() - 6)
               return { startDate: startDate.toISOString().split('T')[0], endDate: (new Date()).toISOString().split('T')[0] }
             }
 
-            return determineDateRange()
-      - name: Get issue data
-        id: get-issues
-        env:
-          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
-        run: |
-          gh api graphql --paginate -f query='
-            search(query: "repo:konabell/actions-test is:issue project:konabell/1 created:${{steps.date-range.outputs.result.startDate}}..${{steps.date-range.outputs.result.endDate}}", type: ISSUE, first: 100) {
-              edges {
-                node {
-                  ... on Issue {
-                    number
-                    url
-                    state
-                    labels(orderBy: { field: NAME, direction: DESC }, first: 30) {
-                      nodes {
-                        name
-                      }
-                    }
-                    projectItems(first: 1) {
-                      nodes {
-                        createdAt
-                        fieldValueByName(name: "Status") {
-                          ... on ProjectV2ItemFieldSingleSelectValue {
-                            name
-                            updatedAt
-                          }
-                        }
-                      }
-                    }
-                    timelineItems(itemTypes: [LABELED_EVENT], first: 30) {
-                      nodes {
-                        ... on LabeledEvent {
-                          createdAt
-                          label {
-                            name
-                          }
-                        }
-                      }
-                    }
+            const dateRange = determineDateRange()
+            const query = `is:issue+repo:konabell/actions-test+project:konabell/1+created:${dateRange.startDate}..${dateRange.endDate}`
+            
+            const findLabelDateTime = async (issueNumber) => {
+              const iterator = github.paginate.iterator(github.rest.issues.listEventsForTimeline, {
+                owner: 'konabell',
+                repo: 'actions-test',
+                issue_number: issueNumber,
+              })
+              for await (const { data: timelineData } of iterator) {
+                for (const timelineItem of timelineData) {
+                  if (timelineItem.event === 'labeled' && ROUTED_TO_LABELS.includes(timelineItem.label.name)) {
+                    return timelineItem.created_at
                   }
                 }
               }
-            }' > issues.json
-            
-          echo "::set-output name=issues::$(cat issues.json)"
-      - name: Analyze issue data
-        uses: actions/github-script@v6
-        with:
-          github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
-          script: |
-            const ROUTED_TO_LABELS = ['route']
-            const MS_PER_DAY = 1000 * 60 * 60 * 24
+            }
             
             const calculateElapsedDays = (createdAt, routedOrClosedAt) => {
               return Math.round((new Date(routedOrClosedAt) - new Date(createdAt)) / MS_PER_DAY, 0)
             }
-
-            const issues = JSON.parse(${{ steps.get-issues.outputs.issues }})
-
-            console.log(issues)
-
-            # for (const issue of data) {
-            #   let routedOrClosedAt
-            #   if () {
-            #     routedOrClosedAt = await findLabelDateTime(issue.number)
-            #   } else if (issue.state === 'closed') {
-            #     const routedLabel = issue.labels.find(label => ROUTED_TO_LABELS.includes(label.name))
-            #     routedOrClosedAt = issue.closed_at
-            #   }
-              
-            #   let elapsedDays
-            #   if (routedOrClosedAt) {
-            #     elapsedDays = calculateElapsedDays(issue.created_at, routedOrClosedAt)
-            #   }
-              
-            #   issues.push({
-            #     number: issue.number,
-            #     title: issue.title,
-            #     state: issue.state,
-            #     url: issue.html_url,
-            #     createdAt: issue.created_at,
-            #     routedOrClosedAt,
-            #     elapsedDays,
-            #   })
-            # }
             
-            # console.log(`Triage Metrics (${dateRange.startDate} - ${dateRange.endDate}`))
-            # console.log('Total issues:', issues.length)
-            # const issuesRoutedOrClosedIn7Days = issues.filter(issue => issue.elapsedDays <= 7).length
-            # const percentage = Number(issuesRoutedOrClosedIn7Days/issues.length).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2}); 
-            # console.log(`Issues routed/closed within 7 days: ${issuesRoutedOrClosedIn7Days} (${percentage})`)
+            const iterator = github.paginate.iterator(github.rest.search.issuesAndPullRequests, {
+              q: query,
+              per_page: 100,
+            })
+            for await (const { data } of iterator) {
+              for (const issue of data) {
+                let routedOrClosedAt
+                if (!issue.pull_request) {
+                  const routedLabel = issue.labels.find(label => ROUTED_TO_LABELS.includes(label.name))
+                  if (routedLabel) {
+                    routedOrClosedAt = await findLabelDateTime(issue.number)
+                  } else if (issue.state === 'closed') {
+                    routedOrClosedAt = issue.closed_at
+                  }
+                  
+                  let elapsedDays
+                  if (routedOrClosedAt) {
+                    elapsedDays = calculateElapsedDays(issue.created_at, routedOrClosedAt)
+                  }
+                  
+                  issues.push({
+                    number: issue.number,
+                    title: issue.title,
+                    state: issue.state,
+                    url: issue.html_url,
+                    createdAt: issue.created_at,
+                    routedOrClosedAt,
+                    elapsedDays,
+                  })
+                }
+              }
+            }
+            
+            console.log(`Triage Metrics (${dateRange.startDate} - ${dateRange.endDate}`))
+            console.log('Total issues:', issues.length)
+            const issuesRoutedOrClosedIn7Days = issues.filter(issue => issue.elapsedDays <= 7).length
+            const percentage = Number(issuesRoutedOrClosedIn7Days/issues.length).toLocaleString(undefined,{style: 'percent', minimumFractionDigits:2}); 
+            console.log(`Issues routed/closed within 7 days: ${issuesRoutedOrClosedIn7Days} (${percentage})`)
+            
