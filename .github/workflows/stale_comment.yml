@@ -60,12 +60,13 @@ jobs:
           echo 'PROJECT_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
           echo 'PROJECT_ITEM_ID='$(jq '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq '.data.organization.projectV2.field | .id' project_data.json) >> $GITHUB_ENV
-          echo 'CURRENT_STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == ${{ env.PROJECT_NUMBER }}) | .name' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS='$(jq '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName | select(.field.project.number == ${{ env.PROJECT_NUMBER }}) | .name' project_data.json) >> $GITHUB_ENV
           echo 'NEW_ISSUE_OPTION_ID='$(jq '.data.organization.projectV2.field.options[] | select(.name== "New Issue") | .id' project_data.json) >> $GITHUB_ENV
       - name: Move issue to New Issue status
         if: env.CURRENT_STATUS == 'Closed'
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
+          CURRENT_STATUS: 'Closed'
         run: |
           gh api graphql -f query='
             mutation (
