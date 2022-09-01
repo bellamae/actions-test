@@ -1,4 +1,4 @@
-name: Issue triage metrics
+name: 'Issue: triage metrics'
 
 on:
   workflow_dispatch:
