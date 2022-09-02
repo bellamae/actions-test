@@ -5,7 +5,11 @@ on:
       - created
 jobs:
   add-to-e2e:
-    if: ${{ !github.event.issue.pull_request && github.event.issue.state == 'closed' && github.event.sender.login != 'cypress-bot' }}
+    if: |
+      !github.event.issue.pull_request &&
+      github.event.issue.state == 'closed' &&
+      github.event.comment.created_at != github.event.issue.closed_at &&
+      github.event.sender.login != 'cypress-bot'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
