@@ -11,9 +11,7 @@ jobs:
       - uses: actions/github-script@v6
         with:
           script: |
-            console.log(github.event)
-            console.log(github.event.sender)
-            console.log(github.event.issue)
+            console.log(context)
 
       - name: Get project data
         env:
