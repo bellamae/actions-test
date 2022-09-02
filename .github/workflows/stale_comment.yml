@@ -8,6 +8,13 @@ jobs:
     if: ${{ !github.event.issue.pull_request && github.event.issue.state == 'closed' && github.event.sender.login != 'cypress-bot' }}
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            console.log(github.event)
+            console.log(github.event.sender)
+            console.log(github.event.issue)
+
       - name: Get project data
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
