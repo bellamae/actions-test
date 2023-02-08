@@ -102,7 +102,11 @@ jobs:
                     singleSelectOptionId: $routed_option
                   }
                 }
-              )
+              ) {
+                projectV2Item {
+                  id
+                }
+              }
             }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f routed_option=$ROUTED_OPTION_ID
 
           gh api graphql -f query='
@@ -116,5 +120,9 @@ jobs:
                     date: $date
                   }
                 }
-              )
+              ) {
+                projectV2Item {
+                  id
+                }
+              }
             }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f routed_date_field=$ROUTED_DATE_FIELD_ID -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
