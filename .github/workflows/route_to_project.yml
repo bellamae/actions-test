@@ -92,7 +92,7 @@ jobs:
           ISSUE_ID: ${{ github.event.issue.node_id }}
         run: |
           gh api graphql -f query='
-            mutation($project:ID!, $item:ID!, $status_field:ID!, $routed_option:ID!, $routed_date_field:ID!, $date:String!) {
+            mutation($project:ID!, $item:ID!, $status_field:ID!, $routed_option:ID!) {
               updateProjectV2ItemFieldValue(
                 input: {
                   projectId: $project
@@ -103,6 +103,10 @@ jobs:
                   }
                 }
               )
+            }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f routed_option=$ROUTED_OPTION_ID
+
+          gh api graphql -f query='
+            mutation($project:ID!, $item:ID!, $routed_date_field:ID!, $date:String!) {
               updateProjectV2ItemFieldValue(
                 input: {
                   projectId: $project
@@ -113,4 +117,4 @@ jobs:
                   }
                 }
               )
-            }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f routed_option=$ROUTED_OPTION_ID -f routed_date_field=$ROUTED_DATE_FIELD_ID -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f routed_date_field=$ROUTED_DATE_FIELD_ID -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
