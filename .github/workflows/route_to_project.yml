@@ -110,7 +110,7 @@ jobs:
             }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f routed_option=$ROUTED_OPTION_ID
 
           gh api graphql -f query='
-            mutation($project:ID!, $item:ID!, $routed_date_field:ID!, $date:String!) {
+            mutation($project:ID!, $item:ID!, $routed_date_field:ID!, $date:Date!) {
               updateProjectV2ItemFieldValue(
                 input: {
                   projectId: $project
