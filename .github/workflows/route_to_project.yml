@@ -51,10 +51,12 @@ jobs:
                 repository(name: $repo) {
                   issue(number: $issue) {
                     projectItems(first: 10, includeArchived: false) {
-                      id
-                      project {
-                        number
+                      nodes {
                         id
+                        project {
+                          number
+                          id
+                        }
                       }
                     }
                   }
