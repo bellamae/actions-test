@@ -58,6 +58,7 @@ jobs:
                   }
                 }
                 projectV2(number: $project) {
+                  id
                   statusField: field(name: "Status") {
                     ... on ProjectV2SingleSelectField {
                       id
@@ -76,7 +77,7 @@ jobs:
               }
             }' -f org=$ORGANIZATION -f repo=$REPOSITORY -F issue=$ISSUE_NUMBER -F project=$PROJECT_NUMBER > project_data.json
 
-          echo 'PROJECT_ID='$(jq -r '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'PROJECT_ID='$(jq -r '.data.organization.projectV2 | .id' project_data.json) >> $GITHUB_ENV
           echo 'PROJECT_ITEM_ID='$(jq -r '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
           echo 'STATUS_FIELD_ID='$(jq -r '.data.organization.projectV2.statusField | .id' project_data.json) >> $GITHUB_ENV
           echo 'ROUTED_OPTION_ID='$(jq -r '.data.organization.projectV2.statusField.options[] | select(.name== "Routed") | .id' project_data.json) >> $GITHUB_ENV
