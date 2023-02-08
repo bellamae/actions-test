@@ -11,8 +11,8 @@ jobs:
       - name: Get project data
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
-          ORGANIZATION: 'konabell'
-          PROJECT_NUMBER: 1
+          ORGANIZATION: 'bellamae'
+          PROJECT_NUMBER: 2
         run: |
           gh api graphql -f query='
             query($org: String!, $number: Int!) {
@@ -37,3 +37,75 @@ jobs:
                 }
               }
             }' -f project=$PROJECT_ID -f issue=$ISSUE_ID --jq '.data.addProjectV2ItemById.item.id')"
+      - name: Get project data
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
+          ORGANIZATION: 'bellamae'
+          REPOSITORY: 'actions-test'
+          PROJECT_NUMBER: 1
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          gh api graphql -f query='
+            query($org: String!, $repo: String!, $project: Int!, $issue: Int!) {
+              organization(login: $org) {
+                repository(name: $repo) {
+                  issue(number: $issue) {
+                    projectItems(first: 10, includeArchived: false) {
+                      nodes {
+                        id
+                      }
+                    }
+                  }
+                }
+                projectV2(number: $project) {
+                  statusField: field(name: "Status") {
+                    ... on ProjectV2SingleSelectField {
+                      id
+                      options {
+                        id
+                        name
+                      }
+                    }
+                  }
+                  routedDateField: field(name: "Routed To Date") {
+                    ... on ProjectV2Field {
+                      id
+                    }
+                  }
+                }
+              }
+            }' -f org=$ORGANIZATION -f repo=$REPOSITORY -F issue=$ISSUE_NUMBER -F project=$PROJECT_NUMBER > project_data.json
+
+          echo 'PROJECT_ID='$(jq -r '.data.organization.repository.issue.projectItems.nodes[].fieldValueByName.field.project | select(.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'PROJECT_ITEM_ID='$(jq -r '.data.organization.repository.issue.projectItems.nodes[] | select(.fieldValueByName.field.project.number == ${{ env.PROJECT_NUMBER }}) | .id' project_data.json) >> $GITHUB_ENV
+          echo 'STATUS_FIELD_ID='$(jq -r '.data.organization.projectV2.statusField | .id' project_data.json) >> $GITHUB_ENV
+          echo 'ROUTED_OPTION_ID='$(jq -r '.data.organization.projectV2.statusField.options[] | select(.name== "Routed") | .id' project_data.json) >> $GITHUB_ENV
+          echo 'ROUTED_DATE_FIELD_ID='$(jq -r '.data.organization.projectV2.routedDateField | .id' project_data.json) >> $GITHUB_ENV
+      - name: update issue in project
+        env:
+          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
+          ISSUE_ID: ${{ github.event.issue.node_id }}
+        run: |
+          gh api graphql -f query='
+            mutation($project:ID!, $item:ID!, $status_field:ID!, $routed_option:ID!, routed_date_field:ID!, $date:String!) {
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $project
+                  itemId: $item
+                  fieldId: $status_field
+                  value: { 
+                    singleSelectOptionId: $routed_option
+                  }
+                }
+              )
+              updateProjectV2ItemFieldValue(
+                input: {
+                  projectId: $project
+                  itemId: $item
+                  fieldId: $routed_date_field
+                  value: { 
+                    date: $date
+                  }
+                }
+              )
+            }' -f project=$PROJECT_ID -f item=$PROJECT_ITEM_ID -f status_field=$STATUS_FIELD_ID -f routed_option=$ROUTED_OPTION_ID -f routed_date_field=$ROUTED_DATE_FIELD_ID -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
