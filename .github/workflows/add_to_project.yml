@@ -34,7 +34,7 @@ jobs:
         # only add issues/prs from non-collaborators
         if: ${{ env.IS_COLLABORATOR == 1 }}
         with:
-          project-url: https://github.com/orgs/konabell/projects/1
+          project-url: https://github.com/orgs/bellamae/projects/1
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
       - name: update issue in project
         env:
