@@ -17,6 +17,7 @@ jobs:
           ORGANIZATION: 'bellamae'
           REPOSITORY: 'actions-test'
           USER: ${{ github.event.issue.user.login }}
+          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
         run: |
           gh api graphql -f query='
             query($org: String!, $repo: String!, $user: String!) {
