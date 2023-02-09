@@ -74,4 +74,4 @@ jobs:
                   id
                 }
               }
-            }' -f project=project_id -f item=$steps.add-to-triage-project.outputs.itemId -f field=field_id -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            }' -f project=$project_id -f item=$steps.add-to-triage-project.outputs.itemId -f field=$field_id -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
