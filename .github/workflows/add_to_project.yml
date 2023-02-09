@@ -73,4 +73,4 @@ jobs:
                   id
                 }
               }
-            }' -f project=$(jq -r '.data.organization.projectV2 | .id' project_data.json) -f item=$steps.add-to-triage-project.outputs.itemId -f field=$(jq -r '.data.organization.projectV2 | .field.id' project_data.json) -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+            }' -f project=$(jq -r '.data.organization.projectV2 | .id' project_data.json) -f item=${{ steps.add-to-triage-project.outputs.itemId }} -f field=$(jq -r '.data.organization.projectV2 | .field.id' project_data.json) -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
