@@ -40,11 +40,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
+          PROJECT_NUMBER: 1
         run: |
           gh api graphql -f query='
             query($org: String!, $project: Int!) {
               organization(login: $org) {
-                projectV2(number: 1) {
+                projectV2(number: $project) {
                   id
                   field(name: "Date Added to Triage Backlog") {
                     ... on ProjectV2Field {
