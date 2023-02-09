@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: is-collaborator
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
         run: |
           gh api graphql -f query='
             query($org: String!, $repo: String!, $user: String!) {
