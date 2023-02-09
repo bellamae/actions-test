@@ -59,14 +59,14 @@ jobs:
           field_id = $(jq -r '.data.organization.projectV2 | .field.id' project_data.json)
 
           gh api graphql -f query='
-            mutation($project:ID!, $item:ID!, $field:ID!) {
+            mutation($project:ID!, $item:ID!, $field:ID!, $date:Date!) {
               updateProjectV2ItemFieldValue(
                 input: {
                   projectId: $project
                   itemId: $item
-                  fieldId: $status_field
+                  fieldId: $field
                   value: { 
-                    singleSelectOptionId: $routed_option
+                    date: $date
                   }
                 }
               ) {
@@ -74,4 +74,4 @@ jobs:
                   id
                 }
               }
-            }' -f project=project_id -f item=$steps.add-to-triage-project.outputs.itemId -f field=field_id
+            }' -f project=project_id -f item=$steps.add-to-triage-project.outputs.itemId -f field=field_id -f date=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
