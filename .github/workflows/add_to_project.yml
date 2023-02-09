@@ -31,7 +31,7 @@ jobs:
       - uses: actions/add-to-project@v0.3.0
         id: add-to-triage-project
         # only add issues/prs from non-collaborators
-        if: ${{ IS_COLLABORATOR == 1 }}
+        if: ${{ env.IS_COLLABORATOR == 1 }}
         with:
           project-url: https://github.com/orgs/konabell/projects/1
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
