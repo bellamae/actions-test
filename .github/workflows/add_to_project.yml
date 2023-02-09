@@ -11,6 +11,8 @@ jobs:
   add-to-triage-project:
     name: Add to triage project
     runs-on: ubuntu-latest
+    env:
+      PROJECT_NUMBER: 1
     steps:
       - name: is-collaborator
         env:
@@ -26,12 +28,12 @@ jobs:
             } ' -f org=${{ github.repository_owner }} -f repo=${{ github.event.repository.name }} -f user=${{ github.actor }} > collaborators.json
 
           echo 'IS_COLLABORATOR='$(jq -r '.data.repository.collaborators.totalCount' collaborators.json) >> $GITHUB_ENV
-      - uses: actions/add-to-project@v0.3.0
+      - uses: actions/add-to-project@v0.4.0
         id: add-to-triage-project
         # only add issues/prs from non-collaborators
-        if: ${{ env.IS_COLLABORATOR == 1 }}
+        if: ${{ env.IS_COLLABORATOR == 0 }}
         with:
-          project-url: https://github.com/orgs/bellamae/projects/1
+          project-url: https://github.com/orgs/${{github.repository_owner}}/projects/${{env.PROJECT_NUMBER}}
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
       - name: update issue in project
         env:
