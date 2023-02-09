@@ -41,6 +41,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
           PROJECT_NUMBER: 1
+          ORGANIZATION: 'bellamae'
         run: |
           gh api graphql -f query='
             query($org: String!, $project: Int!) {
