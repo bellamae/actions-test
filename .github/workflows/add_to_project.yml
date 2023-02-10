@@ -13,10 +13,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PROJECT_NUMBER: 1
+      GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
     steps:
       - name: is-collaborator
-        env:
-          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
         run: |
           gh api graphql -f query='
             query($org: String!, $repo: String!, $user: String!) {
@@ -37,10 +36,7 @@ jobs:
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
       - name: update issue in project
         env:
-          GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           ISSUE_ID: ${{ github.event.issue.node_id }}
-          PROJECT_NUMBER: 1
-          ORGANIZATION: 'bellamae'
         run: |
           gh api graphql -f query='
             query($org: String!, $project: Int!) {
