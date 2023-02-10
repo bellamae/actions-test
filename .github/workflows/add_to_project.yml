@@ -35,6 +35,7 @@ jobs:
           project-url: https://github.com/orgs/${{github.repository_owner}}/projects/${{env.PROJECT_NUMBER}}
           github-token: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
       - name: update issue in project
+        if: ${{ steps.add-to-triage-project.outputs.itemId }}
         env:
           ISSUE_ID: ${{ github.event.issue.node_id }}
         run: |
