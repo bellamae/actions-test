@@ -50,7 +50,7 @@ jobs:
                   }
                 }
               }
-            }' -f org=$ORGANIZATION -F project=$PROJECT_NUMBER > project_data.json
+            }' -f org=${{ github.repository_owner }} -F project=$PROJECT_NUMBER > project_data.json
 
           gh api graphql -f query='
             mutation($project:ID!, $item:ID!, $field:ID!, $date:Date!) {
