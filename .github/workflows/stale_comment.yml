@@ -4,11 +4,25 @@ on:
     types:
       - created
 jobs:
+  print-info:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print date difference
+      run: |
+        closed_at=$(date +%s -d "${{ github.event.issue.closed_at }}")
+        created_at=$(date +%s -d "${{ github.event.comment.created_at }}")
+        diff=$((closed_at - created_at))
+        eval_result=$(( ($(date +%s -d "${{ github.event.issue.closed_at }}" ) - $(date +%s -d "${{ github.event.comment.created_at }}" )) > 20))
+        echo "closed_at: $closed_at"
+        echo "created_at: $created_at"
+        echo "diff: $diff"
+        echo "eval_result: $eval_result"
+        echo "true or false: $((eval_result > 0))"
   add-to-e2e:
     if: |
       !github.event.issue.pull_request &&
       github.event.issue.state == 'closed' &&
-      github.event.comment.created_at != github.event.issue.closed_at &&
+      $(( ($(date +%s -d "${{ github.event.issue.closed_at }}" ) - $(date +%s -d "${{ github.event.comment.created_at }}" )) > 20)) &&
       github.event.sender.login != 'cypress-bot'
     runs-on: ubuntu-latest
     steps:
