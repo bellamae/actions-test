@@ -19,11 +19,6 @@ jobs:
         echo "eval_result: $eval_result"
         echo "true or false: $((eval_result > 0))"
   add-to-e2e:
-    if: |
-      !github.event.issue.pull_request &&
-      github.event.issue.state == 'closed' &&
-      ((date +%s -d "${{ github.event.issue.closed_at }}" ) - (date +%s -d "${{ github.event.comment.created_at }}" )) > 20 &&
-      github.event.sender.login != 'cypress-bot'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/github-script@v6
@@ -32,6 +27,11 @@ jobs:
             console.log(context)
 
       - name: Get project data
+        if: |
+          !github.event.issue.pull_request &&
+          github.event.issue.state == 'closed' &&
+          ((date +%s -d "${{ github.event.issue.closed_at }}" ) - (date +%s -d "${{ github.event.comment.created_at }}" )) > 20 &&
+          github.event.sender.login != 'cypress-bot'
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
           ORGANIZATION: 'bellamae'
