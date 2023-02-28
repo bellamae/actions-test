@@ -22,7 +22,7 @@ jobs:
     if: |
       !github.event.issue.pull_request &&
       github.event.issue.state == 'closed' &&
-      $(( ($(date +%s -d "${{ github.event.issue.closed_at }}" ) - $(date +%s -d "${{ github.event.comment.created_at }}" )) > 20)) != 0 &&
+      $(( ($(date +%s -d "${{ github.event.issue.closed_at }}" ) - $(date +%s -d "${{ github.event.comment.created_at }}" )) > 20)) != '0' &&
       github.event.sender.login != 'cypress-bot'
     runs-on: ubuntu-latest
     steps:
