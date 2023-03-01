@@ -14,12 +14,12 @@ jobs:
       - name: date difference
         run: |
           time_diff=$(($(date +%s -d "${{ github.event.comment.created_at }}" ) - $(date +%s -d "${{ github.event.issue.closed_at }}" )))
-          echo 'LAST_COMMENT_CLOSE_TIME_DIFF='$(($time_diff > 20)) >> $GITHUB_ENV
+          echo 'TIME_DIFF='$time_diff >> $GITHUB_ENV
       - name: Get project data
         if: |
           !github.event.issue.pull_request &&
           github.event.issue.state == 'closed' &&
-          env.LAST_COMMENT_CLOSE_TIME_DIFF == '1' && 
+          env.TIME_DIFF > 20 && 
           github.event.sender.login != 'cypress-bot'
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
