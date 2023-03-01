@@ -9,15 +9,8 @@ jobs:
     steps:
     - name: Print date difference
       run: |
-        closed_at=$(date +%s -d "${{ github.event.issue.closed_at }}")
-        created_at=$(date +%s -d "${{ github.event.comment.created_at }}")
-        diff=$((closed_at - created_at))
-        eval_result=$(( ($(date +%s -d "${{ github.event.issue.closed_at }}" ) - $(date +%s -d "${{ github.event.comment.created_at }}" )) > 20))
-        echo "closed_at: $closed_at"
-        echo "created_at: $created_at"
-        echo "diff: $diff"
-        echo "eval_result: $eval_result"
-        echo "true or false: $((eval_result > 0))"
+        time_diff=$(date +%s -d "${{ github.event.comment.created_at }}" ) - $(date +%s -d "${{ github.event.issue.closed_at }}" )
+        echo 'LAST_COMMENT_CLOSE_TIME_DIFF='$(eval_result > 20) >> $GITHUB_ENV
   add-to-e2e:
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +23,7 @@ jobs:
         if: |
           !github.event.issue.pull_request &&
           github.event.issue.state == 'closed' &&
-          ((date +%s -d "${{ github.event.issue.closed_at }}" ) - (date +%s -d "${{ github.event.comment.created_at }}" )) > 20 &&
+          env.LAST_COMMENT_CLOSE_TIME_DIFF == '1' && 
           github.event.sender.login != 'cypress-bot'
         env:
           GITHUB_TOKEN: ${{ secrets.ADD_TO_PROJECT_TOKEN }}
