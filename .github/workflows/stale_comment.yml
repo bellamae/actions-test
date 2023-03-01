@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: Print date difference
       run: |
-        time_diff=$($(date +%s -d "${{ github.event.comment.created_at }}" ) - $(date +%s -d "${{ github.event.issue.closed_at }}" ))
+        time_diff=$(($(date +%s -d "${{ github.event.comment.created_at }}" ) - $(date +%s -d "${{ github.event.issue.closed_at }}" )))
         echo 'LAST_COMMENT_CLOSE_TIME_DIFF='$(eval_result > 20) >> $GITHUB_ENV
   add-to-e2e:
     runs-on: ubuntu-latest
